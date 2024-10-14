@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bouquet Collection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .bouquet-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .bouquet-card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      margin: 20px;
+      padding: 15px;
+      text-align: center;
+    }
+    .bouquet-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .bouquet-card h2 {
+      margin: 15px 0;
+    }
+    .bouquet-card p {
+      color: #555;
+    }
+  </style>
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCxRYwisjCOba-dGntsikEZ2zjX8cIXvU",
+      authDomain: "bouquet-collection-4ba80.firebaseapp.com",
+      projectId: "bouquet-collection-4ba80",
+      storageBucket: "bouquet-collection-4ba80.appspot.com",
+      messagingSenderId: "714067493022",
+      appId: "1:714067493022:web:219dcad7e3c591a6083b8f",
+      measurementId: "G-GLLS0VBY50"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch bouquets from Firestore
+    async function fetchBouquets() {
+      const bouquetContainer = document.getElementById('bouquet-container');
+      try {
+        const querySnapshot = await getDocs(collection(db, "bouquets"));
+        
+        // Check if there are any bouquets
+        if (querySnapshot.empty) {
+          bouquetContainer.innerHTML = "<p>No bouquets found.</p>";
+          return;
+        }
+
+        querySnapshot.forEach((doc) => {
+          const bouquet = doc.data();
+          const bouquetCard = document.createElement('div');
+          bouquetCard.className = 'bouquet-card';
+          
+          // Provide a default image if imageUrl is not available
+          const imageUrl = bouquet.imageUrl || "https://via.placeholder.com/300x300.png?text=No+Image";
+          
+          bouquetCard.innerHTML = `
+            <img src="${imageUrl}" alt="${bouquet.name}">
+            <h2>${bouquet.name}</h2>
+            <p>${bouquet.description}</p>
+          `;
+          
+          bouquetContainer.appendChild(bouquetCard);
+        });
+      } catch (error) {
+        console.error("Error fetching bouquets: ", error);
+        bouquetContainer.innerHTML = "<p>Error fetching bouquets. Please try again later.</p>";
+      }
+    }
+
+    // Load bouquets on page load
+    window.onload = function() {
+      fetchBouquets();
+    };
+  </script>
+</head>
+<body>
+  <h1>Bouquet Collection</h1>
+  <div id="bouquet-container" class="bouquet-container">
+    <!-- Bouquets will be loaded here -->
+  </div>
+</body>
+</html>
